@@ -83,7 +83,10 @@ def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_con
             mp4_file = mp4_files[0] 
             shutil.move(mp4_file, new_filepath)
             print(f"Video moved and renamed to: {new_filepath}")
-            menu()
+            if "--autorun" in sys.argv:
+                pass
+            else:
+                menu()
             return True
         else:
             print("No .mp4 file found in the directory.")
