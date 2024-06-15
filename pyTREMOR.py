@@ -87,14 +87,11 @@ def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_con
                 pass
             else:
                 menu()
-            return True
+                return true
         else:
             print("No .mp4 file found in the directory.")
-            return False
     except Exception as e:
-        print(f"An error occurred during sonification: {str(e)}")
-        return False
-
+        print(f"An error occurred during sonification: This station is not replying!")
 
 def menu():
     main_menu = {
@@ -283,9 +280,6 @@ def run(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, 
             db_lim_conf = line.split("=")[1] 
 
         success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf)
-        if not success:
-            return False
-    return True
 
 def run_from_config_file():
     lines = read_config("config")
@@ -327,7 +321,6 @@ def run_from_config_file():
     success = run(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf)
     if success:
         menu()
-
 
 def init():
     if "--cmd" in sys.argv:
@@ -428,8 +421,7 @@ def init():
                     db_lim_conf_2 = value.split("|")[1]
                     db_lim_conf=(db_lim_conf_1+","+db_lim_conf_2)
             success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf)
-            if not success:
-                return False
+
     if "--help" in sys.argv:
         print("="*50)
         banner()
