@@ -31,9 +31,7 @@ import subprocess
 from obspy import UTCDateTime
 
 import warnings
-def custom_filter(message, category, filename, lineno, *args, **kwargs):
-    return not ('Font family' in str(message) and 'cursive' in str(message))
-warnings.simplefilter('ignore', custom_filter)
+warnings.filterwarnings('ignore', message='Font family.*cursive')
 
 def banner():
     print(r'''    __   _______         __  __            
