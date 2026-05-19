@@ -66,10 +66,10 @@ The video renders as shown:
 
 | Panel | Content |
 |-------|---------|
-| **Waveform** (top) | Seismic ground velocity — each segment coloured by **spectral centroid** (dominant frequency at that moment, `plasma` colormap: purple = low freq → yellow = high freq) |
-| **RMS envelope** | 30-second rolling root-mean-square amplitude shown as orange fill behind the waveform, making seismic bursts and tremor modulation immediately visible |
-| **Spectrogram** (bottom) | Power spectral density (1–23 Hz, `inferno` colormap, dB scale) |
+| **Spectrogram** (top) | Power spectral density (1–23 Hz, `inferno` colormap, dB scale) |
 | **Dominant frequency ridge** | Dashed white line on the spectrogram tracking the peak-power frequency over time |
+| **Waveform** (bottom) | Seismic ground velocity — each segment coloured by **spectral centroid** (dominant frequency at that moment, `plasma` colormap: purple = low freq → yellow = high freq) |
+| **RMS envelope** | 30-second rolling root-mean-square amplitude shown as orange fill behind the waveform, making seismic bursts and tremor modulation immediately visible |
 | **Time marker** | Animated green vertical line + UTC clock advancing through the record |
 | **Audio** | Waveform sonified at 200× speed-up factor |
 

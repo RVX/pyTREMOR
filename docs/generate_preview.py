@@ -64,13 +64,13 @@ fig = plt.figure(figsize=(18, 9), facecolor=BG)
 # Two-column GridSpec: col 0 = data panels (waveform + spectrogram), col 1 = colorbar.
 # This ensures ax_wave and ax_spec have identical pixel widths (sharex alone does
 # not guarantee alignment when fig.colorbar steals space from only one panel).
-gs  = gridspec.GridSpec(3, 2, figure=fig, hspace=0.06,
-                        width_ratios=[40, 1], wspace=0.02,
+gs  = gridspec.GridSpec(2, 2, figure=fig, height_ratios=[2, 1],
+                        width_ratios=[40, 1], wspace=0.02, hspace=0.06,
                         top=0.88, bottom=0.10, left=0.07, right=0.97)
 
-ax_wave = fig.add_subplot(gs[0, 0])
-ax_spec = fig.add_subplot(gs[1:, 0], sharex=ax_wave)
-cax     = fig.add_subplot(gs[1:, 1])  # dedicated colorbar axes
+ax_spec = fig.add_subplot(gs[0, 0])
+ax_wave = fig.add_subplot(gs[1, 0], sharex=ax_spec)
+cax     = fig.add_subplot(gs[0, 1])  # dedicated colorbar axes, next to spectrogram
 
 for ax in (ax_wave, ax_spec):
     ax.set_facecolor(BG)
@@ -117,7 +117,6 @@ ax_wave.set_xlim(times_rel[0], times_rel[-1])
 ax_wave.set_ylim(-max_amp, max_amp)
 ax_wave.axhline(0, color=GRID_C, linewidth=0.5)
 ax_wave.grid(True, color=GRID_C, linewidth=0.4, linestyle="--", alpha=0.6)
-ax_wave.xaxis.set_visible(False)
 
 # peak annotation
 peak_idx = np.argmax(np.abs(tr.data))
@@ -131,28 +130,27 @@ ax_wave.annotate(f"peak: {peak_v:.0f}", xy=(peak_t, peak_v),
 # --- Spectrogram ---
 # Use the same scipy arrays already computed for the centroid so that
 # pcolormesh and the dominant-frequency ridge share identical time coordinates.
-freq_mask = (f_sg >= FREQMIN) & (f_sg <= FREQMAX)
-f_plot  = f_sg[freq_mask]
 with np.errstate(divide="ignore", invalid="ignore"):
-    Sxx_db = 10 * np.log10(Sxx[freq_mask] + 1e-30)  # (n_freq_plot, n_times)
+    Sxx_db = 10 * np.log10(Sxx + 1e-30)  # full frequency range
 
-vmin_auto = float(np.percentile(Sxx_db, 5))
-vmax_auto = float(np.percentile(Sxx_db, 99))
+# Auto-scale colour range from the displayed band only (matches sonify.py behaviour)
+freq_mask = (f_sg >= FREQMIN) & (f_sg <= FREQMAX)
+vmin_auto = float(np.percentile(Sxx_db[freq_mask], 5))
+vmax_auto = float(np.percentile(Sxx_db[freq_mask], 99))
 print(f"  dB range: {vmin_auto:.1f} -> {vmax_auto:.1f}")
 
 from matplotlib.colors import Normalize
 norm = Normalize(vmin=vmin_auto, vmax=vmax_auto)
 im = ax_spec.pcolormesh(
-    t_sg, f_plot, Sxx_db,
+    t_sg, f_sg, Sxx_db,
     cmap="inferno", norm=norm, shading="nearest", rasterized=True
 )
 
 ax_spec.set_ylim(FREQMIN, FREQMAX)
+ax_spec.xaxis.set_visible(False)  # x-axis shown on bottom panel (ax_wave)
 
 # --- Dominant frequency ridge ---
-# Restrict search to the displayed frequency band.
-dom_idx  = np.argmax(Sxx[freq_mask], axis=0)  # index within f_plot
-dom_freq = f_plot[dom_idx]
+dom_freq = f_sg[np.argmax(Sxx, axis=0)]
 ax_spec.plot(t_sg, dom_freq, color='#e6edf3', linewidth=0.8, alpha=0.5,
              linestyle='--')
 ax_spec.set_ylabel("Frequency (Hz)", color=FG, fontsize=10)
@@ -168,9 +166,9 @@ tick_lbls = [
     (t_start_utc + datetime.timedelta(seconds=float(s))).strftime("%H:%M")
     for s in tick_locs
 ]
-ax_spec.set_xticks(tick_locs)
-ax_spec.set_xticklabels(tick_lbls, color=FG, fontsize=9)
-ax_spec.set_xlabel("UTC Time", color=FG, fontsize=10)
+ax_wave.set_xticks(tick_locs)
+ax_wave.set_xticklabels(tick_lbls, color=FG, fontsize=9)
+ax_wave.set_xlabel("UTC Time", color=FG, fontsize=10)
 
 # colourbar — placed in the dedicated cax, never touching ax_wave
 cbar = fig.colorbar(im, cax=cax)
