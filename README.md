@@ -26,6 +26,8 @@ monitoring of active volcanic regions across Oceania, Asia, and Australia from a
 All stations use IU (GSN), AU, or GE networks via EarthScope. Time windows are always calculated 
 in UTC (`utcnow()`) for near-real-time accuracy. Default: last 5 hours.
 
+![Station Map](docs/pyTREMOR_stations.png)
+
 ----------
 
 #### Installing:
