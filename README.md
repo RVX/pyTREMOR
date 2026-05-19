@@ -11,6 +11,14 @@
 
 ---
 
+## Sonification Output
+
+Each station produces a spectrogram video (MP4) combining seismic waveform, frequency analysis, and sonified audio:
+
+![Sonification Preview](docs/pyTREMOR_preview.png)
+
+---
+
 ## What is pyTREMOR?
 
 **Seismoacoustics** is the combined study of vibrations in the Earth and sound waves in the atmosphere, used to characterize non-earthquake geohazards such as avalanches, landslides, and volcanic eruptions.
