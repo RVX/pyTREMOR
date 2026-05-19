@@ -1,7 +1,7 @@
 """
 Generate a high-quality dark-themed spectrogram preview for pyTREMOR README.
 Fetches recent broadband data from SNZO (Wellington, NZ) via EarthScope.
-Output: docs/pyTREMOR_preview.png
+Output: docs/pyTREMOR_output.png
 """
 
 import datetime
@@ -27,7 +27,7 @@ SPEED_UP     = 200          # sonification speed-up factor (for MP4 label)
 STATION_LOC  = "Wellington, New Zealand  |  41.31°S  174.70°E"
 DB_MIN       = None  # auto-scaled from data
 DB_MAX       = None  # auto-scaled from data
-OUT_PATH     = "docs/pyTREMOR_preview.png"
+OUT_PATH     = "docs/pyTREMOR_output.png"
 
 BG       = "#0d1117"
 FG       = "#e6edf3"

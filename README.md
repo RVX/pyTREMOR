@@ -1,7 +1,7 @@
 
 <div align="center">
 
-![pyTREMOR](docs/pyTREMOR_preview.png)
+![pyTREMOR](docs/pyTREMOR_output.png)
 
 **pyTREMOR — Seismoacoustics tool for real-time volcanic monitoring**
 
@@ -62,7 +62,7 @@ Each station produces a spectrogram video (MP4) saved to `dataset/` with the fil
 dataset/YYYY-MM-DD-HH-MM-STATION.mp4
 ```
 
-The video renders on a dark background and shows:
+The video renders as shown:
 
 | Panel | Content |
 |-------|---------|
