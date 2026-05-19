@@ -16,16 +16,18 @@ from scipy.interpolate import interp1d as _interp1d
 from obspy.clients.fdsn.routing.routing_client import RoutingClient
 
 # --- Config ---
-NETWORK  = "IU"
-STATION  = "SNZO"
-CHANNEL  = "BHZ"
-LOCATION = "*"
-HOURS    = 2
-FREQMIN  = 1.0
-FREQMAX  = 19.0
-DB_MIN   = None  # auto-scaled from data
-DB_MAX   = None  # auto-scaled from data
-OUT_PATH = "docs/pyTREMOR_preview.png"
+NETWORK      = "IU"
+STATION      = "SNZO"
+CHANNEL      = "BHZ"
+LOCATION     = "*"
+HOURS        = 2
+FREQMIN      = 1.0
+FREQMAX      = 19.0
+SPEED_UP     = 200          # sonification speed-up factor (for MP4 label)
+STATION_LOC  = "Wellington, New Zealand  |  41.31°S  174.70°E"
+DB_MIN       = None  # auto-scaled from data
+DB_MAX       = None  # auto-scaled from data
+OUT_PATH     = "docs/pyTREMOR_preview.png"
 
 BG       = "#0d1117"
 FG       = "#e6edf3"
@@ -186,7 +188,8 @@ fig.text(0.07, 0.94,
          f"pyTREMOR  ·  {NETWORK}.{STATION}  ·  {CHANNEL}  ·  {date_str}  ·  {range_str}",
          color=FG, fontsize=13, fontweight="bold", va="bottom")
 fig.text(0.07, 0.905,
-         f"Wellington, New Zealand  ·  bandpass {FREQMIN}–{FREQMAX} Hz  ·  dB {vmin_auto:.0f}–{vmax_auto:.0f}  ·  {HOURS}h window",
+         f"{STATION_LOC}  ·  bandpass {FREQMIN}–{FREQMAX} Hz"
+         f"  ·  dB {vmin_auto:.0f}–{vmax_auto:.0f}  ·  {HOURS}h window  ·  {SPEED_UP}× speed-up (MP4)",
          color="#8b949e", fontsize=10, va="bottom")
 fig.text(0.97, 0.905,
          "victormazon.com  ·  pyTREMOR v0.5",
