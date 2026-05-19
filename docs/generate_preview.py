@@ -10,7 +10,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from matplotlib.collections import LineCollection
 from matplotlib.ticker import MultipleLocator
+from scipy.interpolate import interp1d as _interp1d
 from obspy.clients.fdsn.routing.routing_client import RoutingClient
 
 # --- Config ---
@@ -38,7 +40,7 @@ from obspy import UTCDateTime
 t1 = UTCDateTime(starttime)
 t2 = UTCDateTime(endtime)
 
-print(f"Fetching {STATION} {t1} → {t2} ...")
+print(f"Fetching {STATION} {t1} -> {t2} ...")
 client = RoutingClient("iris-federator")
 st = client.get_waveforms(network=NETWORK, station=STATION, location=LOCATION,
                           channel=CHANNEL, starttime=t1, endtime=t2)
@@ -57,23 +59,60 @@ t_start_utc = tr.stats.starttime.datetime
 
 # --- Figure ---
 fig = plt.figure(figsize=(18, 9), facecolor=BG)
-gs  = gridspec.GridSpec(3, 1, figure=fig, hspace=0.06,
+# Two-column GridSpec: col 0 = data panels (waveform + spectrogram), col 1 = colorbar.
+# This ensures ax_wave and ax_spec have identical pixel widths (sharex alone does
+# not guarantee alignment when fig.colorbar steals space from only one panel).
+gs  = gridspec.GridSpec(3, 2, figure=fig, hspace=0.06,
+                        width_ratios=[40, 1], wspace=0.02,
                         top=0.88, bottom=0.10, left=0.07, right=0.97)
 
-ax_wave = fig.add_subplot(gs[0])
-ax_spec = fig.add_subplot(gs[1:], sharex=ax_wave)
+ax_wave = fig.add_subplot(gs[0, 0])
+ax_spec = fig.add_subplot(gs[1:, 0], sharex=ax_wave)
+cax     = fig.add_subplot(gs[1:, 1])  # dedicated colorbar axes
 
 for ax in (ax_wave, ax_spec):
     ax.set_facecolor(BG)
     for spine in ax.spines.values():
         spine.set_edgecolor(GRID_C)
 
-# --- Waveform ---
-ax_wave.plot(times_rel, tr.data, color=ACCENT, linewidth=0.4, alpha=0.9)
+# --- Waveform: frequency-coloured via spectral centroid ---
+# First compute spectrogram to get centroid (reused for spectrogram panel too)
+from scipy.signal import spectrogram as _sg
+import warnings
+nfft    = 512
+overlap = int(nfft * 0.9)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    f_sg, t_sg, Sxx = _sg(tr.data, fs=tr.stats.sampling_rate,
+                          nperseg=nfft, noverlap=overlap, scaling="density")
+
+centroid = np.sum(f_sg[:, None] * Sxx, axis=0) / (np.sum(Sxx, axis=0) + 1e-30)
+t_abs_sg  = tr.stats.starttime.timestamp + t_sg
+t_abs_tr  = tr.stats.starttime.timestamp + times_rel
+centroid_per_sample = _interp1d(
+    t_abs_sg, centroid, bounds_error=False, fill_value='extrapolate'
+)(t_abs_tr)
+centroid_norm = np.clip(
+    (centroid_per_sample - FREQMIN) / (FREQMAX - FREQMIN + 1e-30), 0, 1
+)
+pts  = np.array([times_rel, tr.data]).T.reshape(-1, 1, 2)
+segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+lc   = LineCollection(segs, cmap='plasma', linewidth=0.5, alpha=0.9)
+lc.set_array(centroid_norm[:-1])
+ax_wave.add_collection(lc)
+
+# RMS envelope
+rms_win  = max(1, int(tr.stats.sampling_rate * 30))
+rms_data = np.sqrt(np.convolve(tr.data**2, np.ones(rms_win)/rms_win, mode='same'))
+ax_wave.fill_between(times_rel,  rms_data, alpha=0.18, color='#f0883e', linewidth=0)
+ax_wave.fill_between(times_rel, -rms_data, alpha=0.18, color='#f0883e', linewidth=0)
+
 ax_wave.set_ylabel("Amplitude\n(counts)", color=FG, fontsize=10)
 ax_wave.tick_params(colors=FG, labelsize=9, which="both")
 ax_wave.yaxis.label.set_color(FG)
+max_amp = np.abs(tr.data).max()
 ax_wave.set_xlim(times_rel[0], times_rel[-1])
+ax_wave.set_ylim(-max_amp, max_amp)
 ax_wave.axhline(0, color=GRID_C, linewidth=0.5)
 ax_wave.grid(True, color=GRID_C, linewidth=0.4, linestyle="--", alpha=0.6)
 ax_wave.xaxis.set_visible(False)
@@ -88,39 +127,32 @@ ax_wave.annotate(f"peak: {peak_v:.0f}", xy=(peak_t, peak_v),
                  arrowprops=dict(arrowstyle="->", color="#f0883e", lw=0.8))
 
 # --- Spectrogram ---
-from matplotlib.colors import Normalize
-nfft    = 512
-overlap = int(nfft * 0.9)
-
-# Compute spectrogram power to auto-scale dB range
-from scipy.signal import spectrogram as _sg
-import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    f_sg, t_sg, Sxx = _sg(tr.data, fs=tr.stats.sampling_rate,
-                          nperseg=nfft, noverlap=overlap, scaling="density")
-with np.errstate(divide="ignore"):
-    Sxx_db = 10 * np.log10(np.abs(Sxx) + 1e-30)
+# Use the same scipy arrays already computed for the centroid so that
+# pcolormesh and the dominant-frequency ridge share identical time coordinates.
 freq_mask = (f_sg >= FREQMIN) & (f_sg <= FREQMAX)
-valid = Sxx_db[freq_mask]
-vmin_auto = float(np.percentile(valid, 5))
-vmax_auto = float(np.percentile(valid, 99))
-print(f"  dB range: {vmin_auto:.1f} → {vmax_auto:.1f}")
+f_plot  = f_sg[freq_mask]
+with np.errstate(divide="ignore", invalid="ignore"):
+    Sxx_db = 10 * np.log10(Sxx[freq_mask] + 1e-30)  # (n_freq_plot, n_times)
 
-Pxx, freqs, bins, im = ax_spec.specgram(
-    tr.data,
-    NFFT=nfft,
-    Fs=tr.stats.sampling_rate,
-    noverlap=overlap,
-    cmap="inferno",
-    vmin=vmin_auto,
-    vmax=vmax_auto,
-    scale="dB",
-    mode="psd",
+vmin_auto = float(np.percentile(Sxx_db, 5))
+vmax_auto = float(np.percentile(Sxx_db, 99))
+print(f"  dB range: {vmin_auto:.1f} -> {vmax_auto:.1f}")
+
+from matplotlib.colors import Normalize
+norm = Normalize(vmin=vmin_auto, vmax=vmax_auto)
+im = ax_spec.pcolormesh(
+    t_sg, f_plot, Sxx_db,
+    cmap="inferno", norm=norm, shading="nearest", rasterized=True
 )
 
-# restrict y-axis to filter range
 ax_spec.set_ylim(FREQMIN, FREQMAX)
+
+# --- Dominant frequency ridge ---
+# Restrict search to the displayed frequency band.
+dom_idx  = np.argmax(Sxx[freq_mask], axis=0)  # index within f_plot
+dom_freq = f_plot[dom_idx]
+ax_spec.plot(t_sg, dom_freq, color='#e6edf3', linewidth=0.8, alpha=0.5,
+             linestyle='--')
 ax_spec.set_ylabel("Frequency (Hz)", color=FG, fontsize=10)
 ax_spec.tick_params(colors=FG, labelsize=9, which="both")
 ax_spec.yaxis.label.set_color(FG)
@@ -138,9 +170,9 @@ ax_spec.set_xticks(tick_locs)
 ax_spec.set_xticklabels(tick_lbls, color=FG, fontsize=9)
 ax_spec.set_xlabel("UTC Time", color=FG, fontsize=10)
 
-# colourbar
-cbar = fig.colorbar(im, ax=ax_spec, pad=0.01, fraction=0.012)
-cbar.set_label("Power (dB)", color=FG, fontsize=9)
+# colourbar — placed in the dedicated cax, never touching ax_wave
+cbar = fig.colorbar(im, cax=cax)
+cbar.set_label("Power (dB rel. 1 count\u00b2/Hz)", color=FG, fontsize=9)
 cbar.ax.yaxis.set_tick_params(color=FG, labelsize=8)
 plt.setp(cbar.ax.yaxis.get_ticklabels(), color=FG)
 cbar.outline.set_edgecolor(GRID_C)
@@ -161,4 +193,4 @@ fig.text(0.97, 0.905,
          color="#8b949e", fontsize=9, ha="right", va="bottom")
 
 plt.savefig(OUT_PATH, dpi=150, facecolor=BG, bbox_inches="tight")
-print(f"Saved → {OUT_PATH}")
+print(f"Saved -> {OUT_PATH}")

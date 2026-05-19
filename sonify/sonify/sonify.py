@@ -12,11 +12,11 @@ import matplotlib.dates as mdates
 import numpy as np
 from matplotlib import font_manager
 from matplotlib.animation import FuncAnimation
+from matplotlib.collections import LineCollection
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.ticker import ScalarFormatter
-from obspy import UTCDateTime
 from obspy.clients.fdsn import RoutingClient
 from obspy.clients.fdsn.client import raise_on_error
 from scipy import signal
@@ -392,10 +392,39 @@ def _spectrogram(
     cax = fig.add_subplot(gs[0, 1])
 
     wf_lw = 0.5
-    wf_ax.plot(tr.times('matplotlib'), tr.data * rescale, _WF, linewidth=wf_lw, alpha=0.85)
+
+    # --- Frequency-coloured waveform via spectral centroid ---
+    # Interpolate spectral centroid from spectrogram to per-sample resolution
+    from scipy.interpolate import interp1d as _interp1d
+    fmin_lim, fmax_lim = freq_lim
+    centroid = np.sum(f[:, None] * sxx, axis=0) / (np.sum(sxx, axis=0) + 1e-30)
+    t_abs_sg  = tr.stats.starttime.timestamp + t
+    t_abs_tr  = tr.stats.starttime.timestamp + np.arange(tr.stats.npts) / tr.stats.sampling_rate
+    centroid_per_sample = _interp1d(
+        t_abs_sg, centroid, bounds_error=False, fill_value='extrapolate'
+    )(t_abs_tr)
+    centroid_norm = np.clip(
+        (centroid_per_sample - fmin_lim) / (fmax_lim - fmin_lim + 1e-30), 0, 1
+    )
+    x_wf  = tr.times('matplotlib')
+    y_wf  = tr.data * rescale
+    pts   = np.array([x_wf, y_wf]).T.reshape(-1, 1, 2)
+    segs  = np.concatenate([pts[:-1], pts[1:]], axis=1)
+    lc    = LineCollection(segs, cmap='plasma', linewidth=wf_lw, alpha=0.9)
+    lc.set_array(centroid_norm[:-1])
+    wf_ax.add_collection(lc)
+
+    # --- RMS energy envelope ---
+    rms_win = max(1, int(tr.stats.sampling_rate * 30))  # 30-second rolling window
+    rms_data = np.sqrt(
+        np.convolve(y_wf ** 2, np.ones(rms_win) / rms_win, mode='same')
+    )
+    wf_ax.fill_between(x_wf,  rms_data, alpha=0.18, color='#f0883e', linewidth=0)
+    wf_ax.fill_between(x_wf, -rms_data, alpha=0.18, color='#f0883e', linewidth=0)
+
     wf_progress = wf_ax.plot(np.nan, np.nan, _FG, linewidth=wf_lw)[0]
     wf_ax.set_ylabel(ylab)
-    wf_ax.grid(linestyle=':', color=_GRID)
+    wf_ax.grid(linestyle='--', color=_GRID, linewidth=0.4, alpha=0.6)
     max_value = np.abs(tr.copy().trim(starttime, endtime).data).max() * rescale
     wf_ax.set_ylim(-max_value, max_value)
 
@@ -403,8 +432,13 @@ def _spectrogram(
         t_mpl, f, sxx_db, cmap='inferno', shading='nearest', rasterized=True
     )
 
+    # --- Dominant frequency ridge ---
+    dom_freq = f[np.argmax(sxx, axis=0)]
+    spec_ax.plot(t_mpl, dom_freq, color='#e6edf3', linewidth=0.6, alpha=0.55,
+                 linestyle='--', label='peak freq')
+
     spec_ax.set_ylabel('Frequency (Hz)')
-    spec_ax.grid(linestyle=':', color=_GRID)
+    spec_ax.grid(linestyle='--', color=_GRID, linewidth=0.3, alpha=0.5)
     spec_ax.set_ylim(freq_lim)
     if log:
         spec_ax.set_yscale('log')
@@ -470,7 +504,9 @@ def _spectrogram(
     else:
         extend = 'neither'
 
-    fig.colorbar(im, cax, extend=extend, extendfrac=EXTENDFRAC, label=clab)
+    cbar = fig.colorbar(im, cax, extend=extend, extendfrac=EXTENDFRAC, label=clab)
+    cbar.outline.set_edgecolor(_GRID)
+    cbar.ax.tick_params(labelsize=8, colors=_FG)
 
     spec_ax.set_title(tr.id, family='JetBrains Mono', color=_FG)
 
