@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pyTREMOR - Python /Seismoacoustics/ Squeezer - 2023-2024 - by Kräken.LABS (https://krakenslab.com)
+pyTREMOR - Python /Seismoacoustics/ Squeezer - 2023-2024 - by Victor Mazon Gardoqui, supported by Kräken.LABS
 
 ----------
 
 Seismoacoustics — the combined study of vibrations in the Earth and sound waves in the atmosphere 
 to characterize non-earthquake geohazards, such as avalanches, landslides, and volcanic eruptions.
 
-https://code.03c8.net/krakenslab/pytremor
+root /at/ victormazon.com
 
 ----------
 
@@ -39,7 +39,7 @@ def banner():
 | '_ \ V /  | || '__/ _ \ |\/| |/ _ \| '__|
 | |_) | |   | || | |  __/ |  | | (_) | |   
 | .__/|_|   |_||_|  \___|_|  |_|\___/|_|   
-|_|  pyTREMOR (v'''+VERSION+''') by Kräken.LABS | (2023/2024)
+|_|  pyTREMOR (v'''+VERSION+''') by Victor Mazon Gardoqui | supported by Kräken.LABS
     ''')
 
 import os
@@ -364,7 +364,7 @@ def init():
             print("\n[Error] not 'autoconfig' file found... Exiting!\n")
             sys.exit(2)      
         datetime_format = "%Y, %m, %d, %H, %M"           
-        endtime_conf = datetime.datetime.now()
+        endtime_conf = datetime.datetime.utcnow()
         endtime_conf_format = endtime_conf.strftime(datetime_format)
         print("\n"+"-"*24)
         for line in lines:
