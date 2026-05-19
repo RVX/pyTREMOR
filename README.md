@@ -26,7 +26,7 @@ pyTREMOR fetches live seismic waveform data from global FDSN/EarthScope servers 
 ```
 1. FETCH    →  Downloads raw seismic waveform data from EarthScope/FDSN (last N hours, UTC)
 2. FILTER   →  Applies bandpass filter (1–23 Hz), trims and processes the signal
-3. SONIFY   →  Renders spectrogram + audio into an MP4 video file saved to dataset/
+3. SONIFY   →  Renders frequency-coloured waveform + spectrogram + audio into an MP4 saved to dataset/
 ```
 
 ---
@@ -62,10 +62,16 @@ Each station produces a spectrogram video (MP4) saved to `dataset/` with the fil
 dataset/YYYY-MM-DD-HH-MM-STATION.mp4
 ```
 
-The video shows:
-- **Top panel** — raw seismic waveform (ground velocity over time)
-- **Bottom panel** — spectrogram (frequency content 1–23 Hz, dB scale)
-- **Audio** — waveform sonified at 200× speed-up factor
+The video renders on a dark background and shows:
+
+| Panel | Content |
+|-------|---------|
+| **Waveform** (top) | Seismic ground velocity — each segment coloured by **spectral centroid** (dominant frequency at that moment, `plasma` colormap: purple = low freq → yellow = high freq) |
+| **RMS envelope** | 30-second rolling root-mean-square amplitude shown as orange fill behind the waveform, making seismic bursts and tremor modulation immediately visible |
+| **Spectrogram** (bottom) | Power spectral density (1–23 Hz, `inferno` colormap, dB scale) |
+| **Dominant frequency ridge** | Dashed white line on the spectrogram tracking the peak-power frequency over time |
+| **Time marker** | Animated green vertical line + UTC clock advancing through the record |
+| **Audio** | Waveform sonified at 200× speed-up factor |
 
 To clear old output files:
 
