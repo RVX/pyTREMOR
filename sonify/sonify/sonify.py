@@ -48,6 +48,13 @@ RESOLUTIONS = {
 
 FIGURE_WIDTH = 7.7  # [in] Sets effective font size, basically
 
+# Dark theme colours
+_BG    = '#0d1117'
+_FG    = '#e6edf3'
+_GRID  = '#21262d'
+_WF    = '#58a6ff'   # waveform accent blue
+_MARK  = '#39d353'   # animated time marker green
+
 # For spectrograms
 REFERENCE_PRESSURE = 20e-6  # [Pa]
 REFERENCE_VELOCITY = 1  # [m/s]
@@ -375,7 +382,7 @@ def _spectrogram(
     t_mpl = tr.stats.starttime.matplotlib_date + (t / mdates.SEC_PER_DAY)
 
     # Ensure a 16:9 aspect ratio
-    fig = Figure(figsize=(FIGURE_WIDTH, (9 / 16) * FIGURE_WIDTH))
+    fig = Figure(figsize=(FIGURE_WIDTH, (9 / 16) * FIGURE_WIDTH), facecolor=_BG)
 
     # width_ratios effectively controls the colorbar width
     gs = GridSpec(2, 2, figure=fig, height_ratios=[2, 1], width_ratios=[40, 1])
@@ -385,10 +392,10 @@ def _spectrogram(
     cax = fig.add_subplot(gs[0, 1])
 
     wf_lw = 0.5
-    wf_ax.plot(tr.times('matplotlib'), tr.data * rescale, '#b0b0b0', linewidth=wf_lw)
-    wf_progress = wf_ax.plot(np.nan, np.nan, 'black', linewidth=wf_lw)[0]
+    wf_ax.plot(tr.times('matplotlib'), tr.data * rescale, _WF, linewidth=wf_lw, alpha=0.85)
+    wf_progress = wf_ax.plot(np.nan, np.nan, _FG, linewidth=wf_lw)[0]
     wf_ax.set_ylabel(ylab)
-    wf_ax.grid(linestyle=':')
+    wf_ax.grid(linestyle=':', color=_GRID)
     max_value = np.abs(tr.copy().trim(starttime, endtime).data).max() * rescale
     wf_ax.set_ylim(-max_value, max_value)
 
@@ -397,7 +404,7 @@ def _spectrogram(
     )
 
     spec_ax.set_ylabel('Frequency (Hz)')
-    spec_ax.grid(linestyle=':')
+    spec_ax.grid(linestyle=':', color=_GRID)
     spec_ax.set_ylim(freq_lim)
     if log:
         spec_ax.set_yscale('log')
@@ -412,7 +419,7 @@ def _spectrogram(
     wf_ax.set_xlim(starttime.matplotlib_date, endtime.matplotlib_date)
 
     # Initialize animated stuff
-    line_kwargs = dict(x=starttime.matplotlib_date, color='forestgreen', linewidth=1)
+    line_kwargs = dict(x=starttime.matplotlib_date, color=_MARK, linewidth=1)
     spec_line = spec_ax.axvline(**line_kwargs)
     wf_line = wf_ax.axvline(ymin=0.01, clip_on=False, zorder=10, **line_kwargs)
     time_box = AnchoredText(
@@ -422,7 +429,7 @@ def _spectrogram(
         bbox_to_anchor=[1, 1],
         bbox_transform=wf_ax.transAxes,
         borderpad=0,
-        prop=dict(color='forestgreen'),
+        prop=dict(color=_MARK),
     )
     offset_px = -0.0025 * RESOLUTIONS[resolution][1]  # Resolution-independent!
     time_box.txt._text.set_y(offset_px)  # [pixels] Vertically center text
@@ -465,7 +472,20 @@ def _spectrogram(
 
     fig.colorbar(im, cax, extend=extend, extendfrac=EXTENDFRAC, label=clab)
 
-    spec_ax.set_title(tr.id, family='JetBrains Mono')
+    spec_ax.set_title(tr.id, family='JetBrains Mono', color=_FG)
+
+    # Apply dark background and light text to all axes
+    for ax in (spec_ax, wf_ax, cax):
+        ax.set_facecolor(_BG)
+        ax.tick_params(colors=_FG, which='both')
+        ax.yaxis.label.set_color(_FG)
+        ax.xaxis.label.set_color(_FG)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(_GRID)
+    # Colorbar tick and label colours
+    cax.yaxis.label.set_color(_FG)
+    for lbl in cax.yaxis.get_ticklabels():
+        lbl.set_color(_FG)
 
     fig.tight_layout()
     fig.subplots_adjust(hspace=0, wspace=0.05)
