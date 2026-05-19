@@ -1,11 +1,11 @@
 
 <div align="center">
 
-![pyTREMOR](https://03c8.net/images/pytremor-banner.png)
+![pyTREMOR](docs/pyTREMOR_preview.png)
 
-**Seismoacoustics tool for real-time volcanic monitoring**
+**pyTREMOR — Seismoacoustics tool for real-time volcanic monitoring**
 
-*by [Victor Mazon Gardoqui](https://victormazon.com) — with contributions by [Sonify](https://sonify.io) and support from Psy / Kräken.LABS*
+*by [Victor Mazon Gardoqui](https://victormazon.com) — with contributions by [Sonify](https://github.com/dkmiller/sonify) and support from Psy / Kräken.LABS*
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue) ![License](https://img.shields.io/badge/License-GPLv3-green) ![Network](https://img.shields.io/badge/Network-EarthScope%2FFDSN-orange)
 
@@ -45,6 +45,10 @@ pyTREMOR fetches live seismic waveform data from global FDSN/EarthScope servers 
 ## Install
 
 ```bash
+# Recommended (pip)
+pip install obspy pygame tqdm
+
+# Or using the included setup file
 python3 setup.py install
 ```
 
@@ -63,7 +67,15 @@ The video shows:
 - **Bottom panel** — spectrogram (frequency content 1–23 Hz, dB scale)
 - **Audio** — waveform sonified at 200× speed-up factor
 
-![Sonification Preview](docs/pyTREMOR_preview.png)
+To clear old output files:
+
+```bash
+# Linux / macOS
+rm dataset/*.mp4
+
+# Windows (PowerShell)
+Remove-Item dataset\*.mp4
+```
 
 ---
 
@@ -98,6 +110,17 @@ To **add** a station: add a new `#LABEL{...}` line.
 To **disable** a station: remove the `#` prefix.  
 To change the time window: edit `LASTHOURS=5` at the top.
 
+Station parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `network` | FDSN network code (IU, AU, GE…) |
+| `station` | Station code |
+| `channel` | Channel code — use `BHZ` for broadband vertical |
+| `freqmin` / `freqmax` | Bandpass filter range in Hz |
+| `speed_up_factor` | Audio time compression (200 = 200× faster) |
+| `db_lim` | Spectrogram colour scale range in dB |
+
 ---
 
 ## Usage
@@ -125,8 +148,8 @@ Runs on **Windows**, **Linux**, and **macOS** with Python 3.x. All time handling
 
 - **GeoNet (NZ)** stations (e.g. WHVZ, KRVZ) are not supported — they require a separate endpoint (`service.geonet.org.nz`) not routed by EarthScope
 - Requires a stable internet connection for FDSN data retrieval
-- Very recent data (< 5 min) may not yet be available on the servers
-- `dataset/` can grow large — clear periodically
+- Very recent data (< 5 min) may not yet be available on EarthScope servers
+- `dataset/` output accumulates — clear regularly with `rm dataset/*.mp4`
 
 ---
 
