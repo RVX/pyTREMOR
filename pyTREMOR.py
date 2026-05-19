@@ -47,7 +47,7 @@ import shutil
 import datetime
 from obspy import UTCDateTime
 
-def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf):
+def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf='*'):
     db_lim_conf = db_lim_conf.replace("\n", "")
     db_lim_conf_1 = int(db_lim_conf.split(",")[0])
     db_lim_conf_2 = int(db_lim_conf.split(",")[1])
@@ -60,6 +60,7 @@ def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_con
             network=network_conf.replace("\n", ""),
             station=station_conf.replace("\n", ""),
             channel=channel_conf.replace("\n", ""),
+            location=str(location_conf).replace("\n", ""),
             starttime=UTCDateTime(starttime_conf),
             endtime=UTCDateTime(endtime_conf),
             freqmax=int(freqmax_conf.replace("\n", "")),
@@ -392,6 +393,7 @@ def init():
                 stations_list.append(location_list)
         print("-"*24+"\n")
         for station in stations_list:
+            location_conf = '*'
             for value in station:
                 if "network" in value:
                     network_conf = value.split("=")[1]
@@ -418,7 +420,9 @@ def init():
                     db_lim_conf_1 = db_lim_conf_1.split("=")[1]
                     db_lim_conf_2 = value.split("|")[1]
                     db_lim_conf=(db_lim_conf_1+","+db_lim_conf_2)
-            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf)
+                if "location" in value:
+                    location_conf = value.split("=")[1]
+            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf)
 
     if "--help" in sys.argv:
         print("="*50)
