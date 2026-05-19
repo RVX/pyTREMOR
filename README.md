@@ -73,14 +73,5 @@ pyTREMOR is released under the **GPLv3**.
 
 ✉️ root /at/ victormazon.com
 
----
 
-## Donate
-
-If you find pyTREMOR useful, consider supporting development:
-
-| Currency | Address |
-|----------|---------|
-| Bitcoin | `19aXfJtoYJUoXEZtjNwsah2JKN9CK5Pcjw` |
-| Ecoin | `ETsRCBzaMawx3isvb5svX7tAukLdUFHKze` |
 
