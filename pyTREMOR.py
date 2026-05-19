@@ -131,7 +131,7 @@ def menu():
             quit()
 
 def clear():
-    os.system('clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def quit():
     sys.exit()
