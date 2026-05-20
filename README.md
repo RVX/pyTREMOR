@@ -25,7 +25,7 @@ pyTREMOR fetches live seismic waveform data from global FDSN/EarthScope servers 
 
 ```
 1. FETCH    →  Downloads raw seismic waveform data from EarthScope/FDSN (last N hours, UTC)
-2. FILTER   →  Applies bandpass filter (1–23 Hz), trims and processes the signal
+2. FILTER   →  Applies bandpass filter (1–18 Hz for BHZ/40 sps, 1–9 Hz for GSI/20 sps), trims and processes the signal
 3. SONIFY   →  Renders frequency-coloured waveform + spectrogram + audio into an MP4 saved to dataset/
 ```
 
@@ -66,7 +66,7 @@ The video renders as shown:
 
 | Panel | Content |
 |-------|---------|
-| **Spectrogram** (top) | Power spectral density (1–23 Hz, `inferno` colormap, dB scale) |
+| **Spectrogram** (top) | Power spectral density (1–18 Hz, `inferno` colormap, dB scale) |
 | **Dominant frequency ridge** | Dashed white line on the spectrogram tracking the peak-power frequency over time |
 | **Waveform** (bottom) | Seismic ground velocity — each segment coloured by **spectral centroid** (dominant frequency at that moment, `plasma` colormap: purple = low freq → yellow = high freq) |
 | **RMS envelope** | 30-second rolling root-mean-square amplitude shown as orange fill behind the waveform, making seismic bursts and tremor modulation immediately visible |
@@ -123,7 +123,7 @@ Station parameters:
 | `network` | FDSN network code (IU, AU, GE…) |
 | `station` | Station code |
 | `channel` | Channel code — use `BHZ` for broadband vertical |
-| `freqmin` / `freqmax` | Bandpass filter range in Hz |
+| `freqmin` / `freqmax` | Bandpass filter range in Hz — must stay below Nyquist (use ≤18 Hz for 40 sps BHZ, ≤9 Hz for 20 sps) |
 | `speed_up_factor` | Audio time compression (200 = 200× faster) |
 | `db_lim` | Spectrogram colour scale range in dB |
 

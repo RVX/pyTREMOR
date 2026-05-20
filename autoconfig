@@ -8,41 +8,41 @@ DISABLED_FRANCE{network=FR,station=CURIE,channel=HHZ,freqmin=1,freqmax=23,speed_
 --- OCEANIA: Active Volcanoes closest to Tasmania ---
 
 NEW ZEALAND - GSN broadband Wellington IU network
-#NZ_WELLINGTON{network=IU,station=SNZO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#NZ_WELLINGTON{network=IU,station=SNZO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 PAPUA NEW GUINEA ~3800km - Rabaul / Tavurvur volcano AU network
-#PNG_RABAUL{network=AU,station=RABL,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#PNG_RABAUL{network=AU,station=RABL,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 SOLOMON ISLANDS ~3500km - GSN station Honiara IU network
-#SOLOMON_HNR{network=IU,station=HNR,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#SOLOMON_HNR{network=IU,station=HNR,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 SAMOA ~4000km - GSN station near Samoa hotspot IU network
-#SAMOA_AFI{network=IU,station=AFI,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#SAMOA_AFI{network=IU,station=AFI,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 --- ASIA: Active Volcanic Zones ---
 
 JAPAN - Matsushiro near Asama / Ontake / Norikura volcanic arc IU network
-#JP_MAJO{network=IU,station=MAJO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#JP_MAJO{network=IU,station=MAJO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 KAMCHATKA RUSSIA - Petropavlovsk near Klyuchevskoy / Shiveluch IU network
-#KAMCHATKA_PET{network=IU,station=PET,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#KAMCHATKA_PET{network=IU,station=PET,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 PHILIPPINES - Davao near Mindanao volcanoes / Apo / Parker IU network
-#PH_DAV{network=IU,station=DAV,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#PH_DAV{network=IU,station=DAV,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 MARIANA ARC - Guam near active submarine Mariana volcanoes IU network
-#MARIANA_GUMO{network=IU,station=GUMO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#MARIANA_GUMO{network=IU,station=GUMO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 INDONESIA - Sumatra near Sinabung / Toba caldera GE network
-#INDONESIA_GSI{network=GE,station=GSI,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#INDONESIA_GSI{network=GE,station=GSI,channel=BHZ,freqmin=1,freqmax=9,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 TAIWAN - Taipei near Tatun volcanic group IU network
-#TAIWAN_TATO{network=IU,station=TATO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#TAIWAN_TATO{network=IU,station=TATO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 --- AUSTRALIA: Volcanic Territories ---
 
 MACQUARIE ISLAND - subantarctic Australian territory geologically volcanic AU network
-#AU_MACQUARIE{network=AU,station=MCQ,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#AU_MACQUARIE{network=AU,station=MCQ,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 NARROGIN WA - GSN broadband best proxy for Heard Island / southern ocean events IU network
-#AU_NWAO{network=IU,station=NWAO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#AU_NWAO{network=IU,station=NWAO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
