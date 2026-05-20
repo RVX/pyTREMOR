@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pyTREMOR - Python /Seismoacoustics/ Squeezer - 2023-2024 - by Victor Mazon Gardoqui, supported by Kräken.LABS
+pyTREMOR - Python /Seismoacoustics/ Squeezer - 2023-2026 - by Victor Mazon Gardoqui, supported by Kräken.LABS
 
 ----------
 

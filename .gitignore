@@ -63,3 +63,12 @@ target/
 
 
 dataset/
+
+# macOS metadata
+.DS_Store
+
+# Runtime logs
+logs/
+
+# Reaper scripts (separate repo: https://github.com/RVX/Reaper_Scripts)
+Reaper_custom_scripts/
