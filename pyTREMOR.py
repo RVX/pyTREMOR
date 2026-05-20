@@ -377,10 +377,15 @@ def init():
         endtime_conf = datetime.datetime.utcnow()
         endtime_conf_format = endtime_conf.strftime(datetime_format)
         print("\n"+"-"*24)
+        audio_only_conf = False
         for line in lines:
             if "LASTHOURS" in line:
-                lasthours = line.split("=")[1]    
-                print ("[Info] LAST HOURS: ["+ str(lasthours).replace("\n","")+"]")
+                parts = line.split("=")[1].strip().split()
+                lasthours = parts[0]
+                if len(parts) > 1 and parts[1].lower() == "wav":
+                    audio_only_conf = True
+                print("[Info] LAST HOURS: ["+str(lasthours)+"]")
+                print("[Info] Output format: "+( "WAV (audio only)" if audio_only_conf else "MP4 (video)"))
         starttime_conf = endtime_conf - timedelta(hours=int(lasthours))
         starttime_conf_format = starttime_conf.strftime(datetime_format)       
         print ("[Info] Starttime: "+str(starttime_conf_format))
@@ -436,7 +441,7 @@ def init():
                     location_conf = value.split("=")[1]
                 if "label" in value:
                     label_conf = value.split("=")[1]
-            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf, audio_only_conf="--audio-only" in sys.argv)
+            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf, audio_only_conf=audio_only_conf)
             autorun_results.append((label_conf or station_conf.strip(), station_conf.strip(), success))
 
         n_ok   = sum(1 for _, _, s in autorun_results if s)

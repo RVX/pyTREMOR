@@ -1,4 +1,4 @@
-LASTHOURS=5
+LASTHOURS=5 mp4
 
 DISABLED_ALASKA{network=AV,station=ILSW,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 DISABLED_ITALY{network=3D,station=OEM9,channel=HHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
