@@ -47,7 +47,7 @@ import shutil
 import datetime
 from obspy import UTCDateTime
 
-def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf='*'):
+def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf='*', audio_only_conf=False):
     db_lim_conf = db_lim_conf.replace("\n", "")
     db_lim_conf_1 = int(db_lim_conf.split(",")[0])
     db_lim_conf_2 = int(db_lim_conf.split(",")[1])
@@ -69,23 +69,33 @@ def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_con
             fps=int(fps_conf.replace("\n", "")),
             spec_win_dur=int(spec_win_dur_conf.replace("\n", "")),
             db_lim=(db_lim_conf_1, db_lim_conf_2),
+            audio_only=audio_only_conf,
         )
         print("Sonification completed successfully.")
         now = datetime.datetime.now()
-        filename = now.strftime("%Y-%m-%d-%H-%M-") + station_conf.replace("\n", "") + ".mp4"
+        station_clean = station_conf.replace("\n", "")
         dataset_folder = "dataset"
         if not os.path.exists(dataset_folder):
             os.makedirs(dataset_folder)
-        new_filepath = os.path.join(dataset_folder, filename)  
-        mp4_files = [file for file in os.listdir(".") if file.endswith(".mp4")]
-        if mp4_files:
-            mp4_file = mp4_files[0] 
-            shutil.move(mp4_file, new_filepath)
-            print(f"Video moved and renamed to: {new_filepath}")
-            if "--autorun" not in sys.argv:
-                menu()
+        if audio_only_conf:
+            wav_files = [f for f in os.listdir(".") if f.endswith(".wav")]
+            if wav_files:
+                wav_filename = now.strftime("%Y-%m-%d-%H-%M-") + station_clean + ".wav"
+                shutil.move(wav_files[0], os.path.join(dataset_folder, wav_filename))
+                print(f"Audio saved to: {os.path.join(dataset_folder, wav_filename)}")
+            else:
+                print("No .wav file found in the directory.")
         else:
-            print("No .mp4 file found in the directory.")
+            filename = now.strftime("%Y-%m-%d-%H-%M-") + station_clean + ".mp4"
+            new_filepath = os.path.join(dataset_folder, filename)
+            mp4_files = [file for file in os.listdir(".") if file.endswith(".mp4")]
+            if mp4_files:
+                shutil.move(mp4_files[0], new_filepath)
+                print(f"Video saved to: {new_filepath}")
+                if "--autorun" not in sys.argv:
+                    menu()
+            else:
+                print("No .mp4 file found in the directory.")
         return True
     except Exception as e:
         print(f"An error occurred during sonification: This station is not replying!")
@@ -426,7 +436,7 @@ def init():
                     location_conf = value.split("=")[1]
                 if "label" in value:
                     label_conf = value.split("=")[1]
-            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf)
+            success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf, audio_only_conf="--audio-only" in sys.argv)
             autorun_results.append((label_conf or station_conf.strip(), station_conf.strip(), success))
 
         n_ok   = sum(1 for _, _, s in autorun_results if s)

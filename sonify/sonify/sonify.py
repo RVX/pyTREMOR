@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import shutil
 import subprocess
 import tempfile
 import warnings
@@ -82,6 +83,7 @@ def sonify(
     db_lim='smart',
     log=False,
     utc_offset=None,
+    audio_only=False,
 ):
     r"""
     Produce an animated spectrogram with a soundtrack derived from sped-up
@@ -240,6 +242,14 @@ def sonify(
         framerate=AUDIO_SAMPLE_RATE,
     )
     print('Done')
+
+    if audio_only:
+        tr_id_str = '_'.join([code for code in tr.id.split('.') if code])
+        wav_output = output_dir / f'{tr_id_str}_{speed_up_factor}x.wav'
+        shutil.copy2(str(audio_file), str(wav_output))
+        print(f'Audio saved to {wav_output.name}')
+        temp_dir.cleanup()
+        return
 
     # MAKE VIDEO FILE
 
