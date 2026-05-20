@@ -82,15 +82,14 @@ def sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_con
             mp4_file = mp4_files[0] 
             shutil.move(mp4_file, new_filepath)
             print(f"Video moved and renamed to: {new_filepath}")
-            if "--autorun" in sys.argv:
-                pass
-            else:
+            if "--autorun" not in sys.argv:
                 menu()
-                return true
         else:
             print("No .mp4 file found in the directory.")
+        return True
     except Exception as e:
         print(f"An error occurred during sonification: This station is not replying!")
+        return False
 
 def menu():
     main_menu = {
@@ -389,11 +388,14 @@ def init():
                 location_list = list(location_conf.split(","))
                 location_list.append("starttime="+starttime_conf_format)
                 location_list.append("endtime="+endtime_conf_format)
+                location_list.append("label="+location.replace("#","").strip())
                 print("  "+ str(location_list)+"\n")
                 stations_list.append(location_list)
         print("-"*24+"\n")
+        autorun_results = []
         for station in stations_list:
             location_conf = '*'
+            label_conf = ''
             for value in station:
                 if "network" in value:
                     network_conf = value.split("=")[1]
@@ -422,7 +424,23 @@ def init():
                     db_lim_conf=(db_lim_conf_1+","+db_lim_conf_2)
                 if "location" in value:
                     location_conf = value.split("=")[1]
+                if "label" in value:
+                    label_conf = value.split("=")[1]
             success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf)
+            autorun_results.append((label_conf or station_conf.strip(), station_conf.strip(), success))
+
+        n_ok   = sum(1 for _, _, s in autorun_results if s)
+        n_fail = sum(1 for _, _, s in autorun_results if not s)
+        width  = 44
+        print("\n" + "="*width)
+        print("  AUTORUN SUMMARY".center(width))
+        print("="*width)
+        for label, station, ok in autorun_results:
+            status = "[OK]  " if ok else "[FAIL]"
+            print(f"  {status}  {label:<22}  {station}")
+        print("-"*width)
+        print(f"  {n_ok}/{len(autorun_results)} stations completed".ljust(width-1))
+        print("="*width + "\n")
 
     if "--help" in sys.argv:
         print("="*50)
