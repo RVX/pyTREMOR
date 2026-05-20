@@ -52,6 +52,12 @@ pip install obspy pygame tqdm
 python3 setup.py install
 ```
 
+> **macOS only:** After installing Python from [python.org](https://www.python.org/), run the certificate installer once to allow `urllib` (used by ObsPy) to make HTTPS connections:
+> ```bash
+> bash "/Applications/Python 3.12/Install Certificates.command"
+> ```
+> Replace `3.12` with your installed Python version. Without this step, ObsPy's service discovery will silently fail and all EarthScope-routed stations will return *"This station is not replying!"* even though the network is reachable.
+
 ---
 
 ## Sonification Output
@@ -147,6 +153,109 @@ python3 pyTREMOR.py --autorun
 ## Platform Support
 
 Runs on **Windows**, **Linux**, and **macOS** with Python 3.x. All time handling uses UTC internally — local system timezone does not affect data retrieval.
+
+| Platform | Notes |
+|----------|-------|
+| Windows | No extra steps required |
+| Linux | No extra steps required |
+| macOS | Requires SSL certificate installation — see [Install](#install) section above |
+
+---
+
+## Troubleshooting
+
+### All stations fail with "This station is not replying!"
+
+**macOS only.** Python installed from [python.org](https://www.python.org/) ships without SSL certificates for the built-in `urllib` library. ObsPy uses `urllib` for FDSN service discovery (fetching `.wadl` descriptors), so all HTTPS endpoints fail silently with `SSL: CERTIFICATE_VERIFY_FAILED` — even though `curl`, `requests`, and the browser can reach the same URLs without issue.
+
+**Fix (one-time):**
+```bash
+bash "/Applications/Python 3.12/Install Certificates.command"
+```
+Replace `3.12` with your Python version. This symlinks [certifi](https://pypi.org/project/certifi/)'s CA bundle as Python's default SSL trust store.
+
+**How to verify the fix worked:**
+```python
+from obspy.clients.fdsn import Client
+c = Client('https://service.earthscope.org', timeout=30)
+print(c.services.keys())  # should print: dict_keys(['dataselect', 'event', 'station', ...])
+```
+
+### Cron job runs but produces no new files
+
+The cron environment has a restricted PATH. Ensure your cron entry sources the full Python path and logs output:
+```bash
+0 7-22 * * * /bin/bash /path/to/pytremor/run_pytremor.sh >> /path/to/pytremor/logs/cron.log 2>&1
+```
+Check `logs/cron.log` for errors. Common causes: SSL failure (see above), FDSN service outage, or stale lockfile at `/tmp/pytremor.lock`.
+
+---
+
+## Automating with Cron (macOS)
+
+macOS cron has several gotchas that make it harder to set up than on Linux. Follow these steps carefully.
+
+### 1. Grant cron Full Disk Access
+
+macOS blocks cron from accessing user files by default. Without this, the script will silently do nothing.
+
+1. Open **System Settings → Privacy & Security → Full Disk Access**
+2. Click **+** and add `/usr/sbin/cron`
+3. If `/usr/sbin/cron` is not visible in Finder: press **⌘ Shift G** in the file picker and type `/usr/sbin/`
+
+### 2. Grant Terminal Full Disk Access (if editing crontab from Terminal)
+
+Same path: **Full Disk Access → +** → add your terminal app (Terminal.app or iTerm2).
+
+### 3. Edit the crontab
+
+```bash
+crontab -e
+```
+
+Add this line to run pyTREMOR every hour from 7am–10pm:
+
+```cron
+0 7-22 * * * /bin/bash /Users/yourname/pytremor/run_pytremor.sh
+```
+
+Replace `/Users/yourname/pytremor` with the actual path. The `run_pytremor.sh` script handles logging and lockfile management — do **not** redirect output again in the crontab itself.
+
+### 4. Verify cron is running
+
+```bash
+# Check cron daemon is active
+sudo launchctl list | grep cron
+
+# Watch the log in real time
+tail -f /Users/yourname/pytremor/logs/cron.log
+```
+
+A healthy log entry looks like:
+```
+Wed May 21 08:00:01 AEST 2026: [OK] SNZO, [OK] RABL, ...
+```
+
+### 5. Stale lockfile recovery
+
+If pyTREMOR was killed mid-run, the lockfile may remain and block all future runs:
+
+```bash
+rm /tmp/pytremor.lock
+```
+
+Check if this is the cause: `cat /tmp/pytremor.lock` — if the PID inside is no longer running (`ps aux | grep <PID>`), the lock is stale and safe to delete.
+
+### macOS vs Linux differences
+
+| Behaviour | macOS cron | Linux cron |
+|-----------|-----------|------------|
+| Full Disk Access required | ✅ Yes | ❌ No |
+| `launchd` recommended alternative | ✅ | ❌ |
+| SSL certificates for Python urllib | Manual install needed | Usually pre-installed |
+| PATH in cron environment | Very minimal | Minimal but broader |
+
+> **Alternative:** macOS `launchd` (via a `.plist` file in `~/Library/LaunchAgents/`) is more reliable than cron on macOS — it persists across reboots and respects system sleep/wake cycles. Cron works but requires the above steps every time on a new machine.
 
 ---
 
