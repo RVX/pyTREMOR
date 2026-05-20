@@ -467,7 +467,7 @@ def init():
         print("\n    +SHELL:\n       python3 pyTREMOR.py")
         print("\n    +AUTORUN:\n       python3 pyTREMOR.py --autorun")
         print("\n    +CMD:\n       python3 pyTREMOR.py --cmd <network> <station> <channel> <starttime> <endtime> <freqmax> <freqmin> <speed_up_factor> <fps> <spec_win_dur> <db_lim>\n")
-    else:
+    elif "--autorun" not in sys.argv:
         menu()
 
 init()
