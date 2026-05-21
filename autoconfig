@@ -1,10 +1,10 @@
 LASTHOURS=12 wav
 
-#ALASKA{network=AV,station=ILSW,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
-#ITALY{network=3D,station=OEM9,channel=HHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
-#ETNA_ITALY{network=MN,station=CEL,channel=HHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
-#COLOMBIA{network=CM,station=RUS,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
-#RUIZ_COLOMBIA{network=CM,station=HEL,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#ALASKA_KODIAK{network=IU,station=KDAK,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#EUROPE_BFO{network=II,station=BFO,location=00,channel=BHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#MEDITERRANEAN_ANTO{network=II,station=ANTO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#ECUADOR_OTAV{network=IU,station=OTAV,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+#ANDES_NNA{network=IU,station=NNA,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 #FRANCE{network=FR,station=CURIE,channel=HHZ,freqmin=1,freqmax=23,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 #ICELAND_REYKJANES{network=II,station=BORG,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
@@ -27,8 +27,8 @@ SAMOA ~4000km - GSN station near Samoa hotspot IU network
 JAPAN - Matsushiro near Asama / Ontake / Norikura volcanic arc IU network
 #JP_MAJO{network=IU,station=MAJO,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
-KAMCHATKA RUSSIA - Petropavlovsk near Klyuchevskoy / Shiveluch IU network
-#KAMCHATKA_PET{network=IU,station=PET,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+KAMCHATKA RUSSIA - Magadan closest II station to Klyuchevskoy / Shiveluch II network
+#KAMCHATKA_MA2{network=II,station=MA2,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 PHILIPPINES - Davao near Mindanao volcanoes / Apo / Parker IU network
 #PH_DAV{network=IU,station=DAV,location=00,channel=BHZ,freqmin=1,freqmax=18,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
@@ -50,8 +50,8 @@ TAIWAN - Taipei near Tatun volcanic group IU network
 
 --- AFRICA: Active Volcanic Zones ---
 
-ETHIOPIA - Erta Ale lava lake / Afar Triangle AF network
-#ETHIOPIA_ERTA_ALE{network=AF,station=DESE,channel=BHZ,freqmin=1,freqmax=9,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
+DJIBOUTI - ATD station right on the Afar Triangle / Erta Ale lava lake II network
+#AFAR_ATD{network=II,station=ATD,location=00,channel=BHZ,freqmin=1,freqmax=9,speed_up_factor=200,fps=1,spec_win_dur=8,db_lim=-180|-130}
 
 --- AUSTRALIA: Volcanic Territories ---
 

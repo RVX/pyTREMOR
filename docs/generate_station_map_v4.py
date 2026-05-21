@@ -75,20 +75,20 @@ _CONTINENTS = [
 TAS_LAT, TAS_LON = -42.8821, 147.3272
 
 _STATIONS_RAW = [
-    ("CEL\nEtna",        38.26,  15.89, "Europe",    "MN", "Mt. Etna / active"),
-    ("OEM9\nN.Italy",    45.96,  11.23, "Europe",    "3D", "N. Italy / induced"),
+    ("ANTO\nTurkey",     39.87,  32.79, "Europe",    "II", "Mediterranean arc / Aegean"),
+    ("BFO\nGermany",     48.33,   8.33, "Europe",    "II", "C. Europe broadband"),
     ("CURIE\nFrance",    48.00,   5.50, "Europe",    "FR", "France broadband"),
     ("BORG\nIceland",    64.75, -21.33, "Europe",    "II", "Litli-Hrútur / active"),
-    ("ILSW\nAlaska",     59.38,-153.49, "Americas",  "AV", "Iliamna / active"),
-    ("RUS\nColombia",     5.89, -73.08, "Americas",  "CM", "Cordillera Oriental"),
-    ("HEL\nRuiz",         6.19, -75.53, "Americas",  "CM", "Nevado del Ruiz"),
-    ("DESE\nErta Ale",   11.12,  39.63, "Africa",    "AF", "Erta Ale / active"),
+    ("KDAK\nKodiak",     57.78,-152.58, "Americas",  "IU", "Kodiak Is. / Aleutian arc"),
+    ("OTAV\nEcuador",     0.24, -78.45, "Americas",  "IU", "Cotopaxi / Pichincha"),
+    ("NNA\nPeru",       -11.99, -76.84, "Americas",  "IU", "Andes volcanic arc"),
+    ("ATD\nDjibouti",    11.53,  42.85, "Africa",    "II", "Afar Triangle / Erta Ale"),
     ("SNZO\nNew Zeal.", -41.31, 174.70, "Oceania",   "IU", "GSN Wellington"),
     ("RABL\nRabaul",     -4.19, 152.16, "Oceania",   "AU", "Tavurvur caldera"),
     ("HNR\nSolomon Is.", -9.44, 159.95, "Oceania",   "IU", "Near Tinakula"),
     ("AFI\nSamoa",      -13.91,-171.78, "Oceania",   "IU", "Samoa hotspot"),
     ("MAJO\nJapan",      36.55, 138.20, "Asia",      "IU", "Asama / Ontake"),
-    ("PET\nKamchatka",   53.02, 158.65, "Asia",      "IU", "Klyuchevskoy"),
+    ("MA2\nMagadan",     59.58, 150.77, "Asia",      "II", "Kamchatka / Klyuchevskoy"),
     ("DAV\nPhilippines",  7.07, 125.58, "Asia",      "IU", "Apo / Mindanao"),
     ("GUMO\nGuam",       13.59, 144.87, "Asia",      "IU", "Mariana Arc"),
     ("GSI\nSumatra",      1.30,  97.57, "Asia",      "GE", "Sinabung / Toba"),
@@ -108,9 +108,8 @@ REGION_COLORS = {
     "Australia": "#4CAF50",
 }
 NETWORK_MARKERS = {
-    "IU": "o", "AU": "s", "GE": "D", "MN": "P",
-    "II": "h", "AV": "^", "CM": "v", "AF": "*",
-    "FR": "X", "3D": "p",
+    "IU": "o", "AU": "s", "GE": "D",
+    "II": "h", "FR": "X",
 }
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -171,21 +170,20 @@ _XMAX = 0.8487 * np.pi         # ≈ 2.666
 _YMAX = 1.3523                 # pole y-coordinate
 
 # ── Figure ──────────────────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(44, 20), facecolor="#0d1117")
+fig = plt.figure(figsize=(50, 24), facecolor="#0d1117")
 fig.suptitle(
-    "pyTREMOR — Seismic Station Network  (v4 · Robinson Projection)\n"
-    "Victor Mazon Gardoqui · Kräken.LABS",
-    color="white", fontsize=18, y=0.989, fontweight="bold"
+    "pyTREMOR Seismic Station Network Map\n"
+    "v0.4  ·  Robinson Projection\n"
+    "by Víctor Mazón Gardoqui  ·  05-2026",
+    color="#5BA8FF", fontsize=24, y=0.994, fontweight="bold", linespacing=1.5
 )
 
-ax_map = fig.add_axes([0.01, 0.05, 0.61, 0.92])
-ax_tbl = fig.add_axes([0.64, 0.05, 0.35, 0.92])
+ax_map = fig.add_axes([0.01, 0.04, 0.61, 0.88])
+ax_tbl = fig.add_axes([0.64, 0.04, 0.35, 0.88])
 
 ax_map.set_facecolor("#0d1117")      # figure background colour (outside oval)
 ax_map.set_xlim(-_XMAX - 0.12, _XMAX + 0.35)
-ax_map.set_ylim(-_YMAX - 0.12, _YMAX + 0.08)
-ax_map.set_title("Global Station Locations  —  Robinson Projection  (λ₀ = 150°E, Pacific-centred)",
-                 color="white", fontsize=11.5, pad=7)
+ax_map.set_ylim(-_YMAX - 0.45, _YMAX + 0.08)
 ax_map.axis("off")
 
 # ── Ocean fill: Robinson oval ────────────────────────────────────────────────────
@@ -231,18 +229,24 @@ for lon_off in range(-180, 181, 30):
     lo = ((lon_g + 180) % 360) - 180          # canonical [-180, 180]
     xs_l, _ = robinson(lon_g, 0)
     label = "0°" if abs(lo) < 0.5 else f"{abs(lo):.0f}°{'E' if lo > 0 else 'W'}"
-    ax_map.text(float(np.squeeze(xs_l)), -_YMAX - 0.07, label,
-                color="#777", fontsize=7.5, ha="center", va="top", zorder=5)
+    ax_map.text(float(np.squeeze(xs_l)), -_YMAX - 0.08, label,
+                color="#888", fontsize=11, ha="center", va="top", zorder=5)
 
 # Latitude labels placed just beyond the right edge of each parallel
 for lat_g in range(-80, 81, 20):
     plen_g = float(np.interp(abs(lat_g), _ROB_LATS, _ROB_PLEN))
     pdfe_g = float(np.interp(abs(lat_g), _ROB_LATS, _ROB_PDFE))
     y_g   = 1.3523 * pdfe_g * (1 if lat_g >= 0 else -1)
-    x_r   = 0.8487 * np.pi * plen_g + 0.06
+    x_r   = 0.8487 * np.pi * plen_g + 0.07
     label = f"{abs(lat_g)}°{'S' if lat_g < 0 else 'N'}"
-    ax_map.text(x_r, y_g, label, color="#777", fontsize=7.5,
+    ax_map.text(x_r, y_g, label, color="#888", fontsize=11,
                 ha="left", va="center", zorder=5)
+
+# Bottom subtitle (below longitude labels)
+ax_map.text(0, -_YMAX - 0.32,
+            "Global Station Locations  —  Robinson Projection  (λ₀ = 150°E, Pacific-centred)",
+            color="#5BA8FF", fontsize=14, ha="center", va="top",
+            fontweight="bold", zorder=5)
 
 # ── Hobart (base station) ────────────────────────────────────────────────────────
 hx, hy = robinson(TAS_LON, TAS_LAT)
@@ -251,7 +255,7 @@ ax_map.plot(hx, hy, "*", color="#FFD700", markersize=18, zorder=11,
             markeredgecolor="#0d1117", markeredgewidth=0.8)
 ax_map.annotate("Hobart, Tasmania\n42.88°S  147.33°E",
                 (hx, hy), textcoords="offset points",
-                xytext=(10, -30), color="#FFD700", fontsize=9.5, fontweight="bold",
+                xytext=(10, -34), color="#FFD700", fontsize=13, fontweight="bold",
                 zorder=12)
 
 # ── Stations: connection lines + markers + labels ────────────────────────────────
@@ -270,11 +274,11 @@ for label, lat, lon, region, network, _ in STATIONS:
     lxs[1:][dx > 1.2] = np.nan
     ax_map.plot(lxs, lys, color=color, alpha=0.22, lw=0.9, zorder=3)
 
-    ax_map.plot(sx, sy, marker, color=color, markersize=11,
+    ax_map.plot(sx, sy, marker, color=color, markersize=13,
                 markeredgecolor="#0d1117", markeredgewidth=0.8, zorder=7)
     short = label.split("\n")[0]
     ax_map.annotate(short, (sx, sy), textcoords="offset points",
-                    xytext=(6, 5), color=color, fontsize=8.5,
+                    xytext=(7, 6), color=color, fontsize=11,
                     fontweight="bold", zorder=8)
 
 # ── Legend ────────────────────────────────────────────────────────────────────────
@@ -292,28 +296,28 @@ tas_handle = Line2D([0], [0], marker="*", color="w", markerfacecolor="#FFD700",
                     markersize=10, label="Hobart (base)", linestyle="None")
 ax_map.legend(
     handles=region_patches + net_handles + [tas_handle],
-    loc="lower left", fontsize=9, framealpha=0.40,
+    loc="lower left", fontsize=12, framealpha=0.45,
     facecolor="#0d1117", edgecolor="#30363d", labelcolor="white", ncol=2
 )
 
 # ── Table (right panel) ───────────────────────────────────────────────────────────
 ax_tbl.set_facecolor("#161b22")
 ax_tbl.axis("off")
-ax_tbl.set_title("Station Reference", color="white", fontsize=14, pad=10)
+ax_tbl.set_title("Station Reference", color="white", fontsize=18, pad=12)
 
 col_headers = ["Station", "Net", "Region / Volcano", "Coordinates", "km"]
 col_x       = [0.00, 0.17, 0.27, 0.60, 0.92]
 row_h       = 0.044
-header_y    = 0.97
+header_y    = 0.96
 
 for i, h in enumerate(col_headers):
-    ax_tbl.text(col_x[i], header_y, h, color="#FFD700", fontsize=11.5,
+    ax_tbl.text(col_x[i], header_y, h, color="#FFD700", fontsize=14,
                 fontweight="bold", transform=ax_tbl.transAxes, va="top")
-ax_tbl.plot([0, 1], [header_y - 0.011] * 2,
-            color="#30363d", lw=0.8, transform=ax_tbl.transAxes, clip_on=False)
+ax_tbl.plot([0, 1], [header_y - 0.012] * 2,
+            color="#30363d", lw=1.0, transform=ax_tbl.transAxes, clip_on=False)
 
 for idx, (label, lat, lon, region, network, notes) in enumerate(STATIONS):
-    y     = header_y - 0.025 - idx * row_h
+    y     = header_y - 0.028 - idx * row_h
     color = REGION_COLORS[region]
     dist  = int(haversine(TAS_LAT, TAS_LON, lat, lon))
     short = label.replace("\n", " ")
@@ -324,17 +328,17 @@ for idx, (label, lat, lon, region, network, notes) in enumerate(STATIONS):
             boxstyle="square,pad=0", facecolor="#1c2128", edgecolor="none",
             transform=ax_tbl.transAxes, zorder=0))
 
-    ax_tbl.text(col_x[0], y, short,    color=color,    fontsize=10.5,
+    ax_tbl.text(col_x[0], y, short,    color=color,    fontsize=13,
                 transform=ax_tbl.transAxes, va="top", fontweight="bold")
-    ax_tbl.text(col_x[1], y, network,  color="#aaa",   fontsize=10.5,
+    ax_tbl.text(col_x[1], y, network,  color="#aaa",   fontsize=13,
                 transform=ax_tbl.transAxes, va="top")
-    ax_tbl.text(col_x[2], y, notes,    color="#ccc",   fontsize=10,
+    ax_tbl.text(col_x[2], y, notes,    color="#ccc",   fontsize=12,
                 transform=ax_tbl.transAxes, va="top")
     lat_str = (f"{abs(lat):.2f}°{'S' if lat<0 else 'N'}  "
                f"{abs(lon):.2f}°{'W' if lon<0 else 'E'}")
-    ax_tbl.text(col_x[3], y, lat_str,  color="#7a9fc2", fontsize=10,
+    ax_tbl.text(col_x[3], y, lat_str,  color="#7a9fc2", fontsize=12,
                 transform=ax_tbl.transAxes, va="top")
-    ax_tbl.text(col_x[4], y, f"{dist:,}", color="#888", fontsize=10.5,
+    ax_tbl.text(col_x[4], y, f"{dist:,}", color="#888", fontsize=13,
                 transform=ax_tbl.transAxes, va="top", ha="left")
 
 # ── Save ──────────────────────────────────────────────────────────────────────────
