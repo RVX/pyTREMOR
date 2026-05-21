@@ -407,6 +407,7 @@ def init():
                 print("  "+ str(location_list)+"\n")
                 stations_list.append(location_list)
         print("-"*24+"\n")
+        autorun_start = datetime.datetime.utcnow()
         autorun_results = []
         for station in stations_list:
             location_conf = '*'
@@ -441,20 +442,27 @@ def init():
                     location_conf = value.split("=")[1]
                 if "label" in value:
                     label_conf = value.split("=")[1]
+            station_start = datetime.datetime.utcnow()
             success = sonify(network_conf, station_conf, channel_conf, starttime_conf, endtime_conf, freqmax_conf, freqmin_conf, speed_up_factor_conf, fps_conf, spec_win_dur_conf, db_lim_conf, location_conf, audio_only_conf=audio_only_conf)
-            autorun_results.append((label_conf or station_conf.strip(), station_conf.strip(), success))
+            station_elapsed = (datetime.datetime.utcnow() - station_start).total_seconds()
+            autorun_results.append((label_conf or station_conf.strip(), station_conf.strip(), success, station_elapsed))
 
-        n_ok   = sum(1 for _, _, s in autorun_results if s)
-        n_fail = sum(1 for _, _, s in autorun_results if not s)
-        width  = 44
+        n_ok   = sum(1 for _, _, s, _ in autorun_results if s)
+        n_fail = sum(1 for _, _, s, _ in autorun_results if not s)
+        total_elapsed = (datetime.datetime.utcnow() - autorun_start).total_seconds()
+        width  = 54
         print("\n" + "="*width)
         print("  AUTORUN SUMMARY".center(width))
         print("="*width)
-        for label, station, ok in autorun_results:
+        for label, station, ok, elapsed in autorun_results:
             status = "[OK]  " if ok else "[FAIL]"
-            print(f"  {status}  {label:<22}  {station}")
+            mins, secs = divmod(int(elapsed), 60)
+            t = f"{mins}m{secs:02d}s" if mins else f"{secs}s"
+            print(f"  {status}  {label:<22}  {station:<8}  {t:>6}")
         print("-"*width)
-        print(f"  {n_ok}/{len(autorun_results)} stations completed".ljust(width-1))
+        total_mins, total_secs = divmod(int(total_elapsed), 60)
+        total_t = f"{total_mins}m{total_secs:02d}s" if total_mins else f"{total_secs}s"
+        print(f"  {n_ok}/{len(autorun_results)} stations completed   total: {total_t}".ljust(width-1))
         print("="*width + "\n")
 
     if "--help" in sys.argv:
